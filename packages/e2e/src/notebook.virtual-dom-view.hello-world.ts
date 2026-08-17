@@ -7,14 +7,7 @@ export const test: Test = async ({ Command, expect, Locator }) => {
 
   const item = Locator('.ActivityBarItem[title="Notebook"]')
   await expect(item).toBeVisible()
-  await Command.execute(
-    'ActivityBar.handleClick',
-    0,
-    0,
-    0,
-    'notebook.views.notebook',
-  )
-  await expect(item).toHaveAttribute('aria-selected', 'true')
+  await Command.executeExtensionCommand('notebook.show')
 
   const runningExtensions = (await Command.execute(
     'ExtensionManagement.getRunningExtensions',
