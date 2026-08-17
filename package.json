@@ -1,0 +1,36 @@
+{
+  "name": "builtin.notebook-monorepo",
+  "version": "0.0.0-dev",
+  "description": "Jupyter notebook extension monorepo for LVCE Editor",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "node packages/build/src/build.ts",
+    "build:extension": "node packages/build/src/build-extension.ts",
+    "build:static": "node scripts/build-static.ts",
+    "build:watch": "npm exec --workspace=packages/build -- esbuild --format=esm --bundle --external:electron --external:node:* --watch packages/extension/src/notebookMain.ts --outfile=packages/extension/dist/notebookMain.js",
+    "dev": "node packages/build/src/dev.ts",
+    "e2e": "npm run e2e --workspace=packages/e2e",
+    "e2e:headless": "npm run e2e:headless --workspace=packages/e2e",
+    "format": "prettier --write .",
+    "install:extension": "node packages/build/src/install-extension.ts",
+    "lint": "eslint . && prettier --check . && knip --no-config-hints",
+    "test": "npm test --workspaces --if-present",
+    "type-check": "tsc -b"
+  },
+  "author": "LVCE Editor",
+  "license": "MIT",
+  "devDependencies": {
+    "@lvce-editor/eslint-config": "^18.4.0",
+    "eslint": "^10.8.1",
+    "knip": "^6.32.2",
+    "prettier": "^4.0.0-alpha.13",
+    "typescript": "^6.0.3"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "name": "builtin.notebook",
+  "version": "0.0.0-dev",
+  "description": "Jupyter notebook extension for LVCE Editor",
+  "main": "dist/notebookMain.js",
+  "scripts": {
+    "test": "node --unhandled-rejections=warn --experimental-vm-modules ../../node_modules/jest/bin/jest.js --detectOpenHandles --forceExit"
+  },
+  "author": "LVCE Editor",
+  "license": "MIT",
+  "type": "module",
+  "jest": {
+    "injectGlobals": false,
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
+    "transform": {
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "useESM": true
+        }
+      ]
+    },
+    "testMatch": [
+      "**/test/**"
+    ],
+    "collectCoverage": true,
+    "coverageThreshold": {
+      "global": {
+        "branches": 90,
+        "functions": 90,
+        "lines": 90,
+        "statements": 90
+      }
+    }
+  },
+  "devDependencies": {
+    "@jest/globals": "^30.4.1",
+    "@lvce-editor/api": "^9.18.1",
+    "@lvce-editor/virtual-dom-worker": "^11.12.2",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.12"
+  }
+}
