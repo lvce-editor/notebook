@@ -50,6 +50,10 @@ await esbuildNode.build({
   bundle: true,
   entryPoints: [join(root, 'packages/node/src/notebookProcess.ts')],
   outfile: join(output, 'dist/notebookProcess.js'),
+  external: ['electron', 'node:*'],
+  banner: {
+    js: "import { createRequire as __createRequire } from 'node:module'; const require = __createRequire(import.meta.url);",
+  },
   platform: 'node',
   format: 'esm',
   target: 'esnext',
