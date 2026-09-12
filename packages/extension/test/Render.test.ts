@@ -1,23 +1,45 @@
 import { expect, test } from '@jest/globals'
-import { VirtualDomElements } from '@lvce-editor/virtual-dom-worker'
+import { validate } from '@lvce-editor/virtual-dom-worker'
+import {
+  newCell,
+  newNotebook,
+} from '../src/parts/NotebookDocument/NotebookDocument.ts'
 import { render } from '../src/parts/Render/Render.ts'
-
-test('renders hello world', () => {
-  expect(render()).toEqual([
+test('renders valid DOM with controls, source and plain text outputs', () => {
+  const notebook = newNotebook()
+  notebook.cells.push(
     {
-      childCount: 1,
-      className: 'Notebook',
-      type: VirtualDomElements.Main,
+      ...newCell('code'),
+      execution_count: 1,
+      outputs: [{ output_type: 'stream', text: '<script>plain</script>' }],
     },
-    {
-      childCount: 1,
-      className: 'NotebookTitle',
-      type: VirtualDomElements.H1,
-    },
-    {
-      childCount: 0,
-      text: 'Hello World',
-      type: VirtualDomElements.Text,
-    },
-  ])
+    newCell('markdown'),
+  )
+  const dom = render({
+    busy: false,
+    dirty: true,
+    error: '',
+    notebook,
+    status: 'Ready',
+    uri: 'a.ipynb',
+  })
+  expect(() => validate(dom)).not.toThrow()
+  expect(dom).toContainEqual(
+    expect.objectContaining({ text: '<script>plain</script>' }),
+  )
+  expect(dom).toContainEqual(expect.objectContaining({ text: 'Notebook •' }))
+})
+test('invalid notebook displays an error and disables modification', () => {
+  const dom = render({
+    busy: false,
+    dirty: false,
+    error: 'Invalid JSON',
+    notebook: newNotebook(),
+    status: '',
+    uri: '',
+  })
+  expect(() => validate(dom)).not.toThrow()
+  expect(dom).toContainEqual(
+    expect.objectContaining({ disabled: true, name: 'save' }),
+  )
 })

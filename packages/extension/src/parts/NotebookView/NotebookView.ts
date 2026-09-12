@@ -5,6 +5,20 @@ import { createInstance } from '../CreateInstance/CreateInstance.ts'
 export const view: View<VirtualDomViewInstance> = {
   create: createInstance,
   displayName: 'Notebook',
+  eventListeners: [
+    {
+      name: 'handleNotebookAction',
+      params: ['handleNotebookAction', 'event.currentTarget.name'],
+    },
+    {
+      name: 'handleNotebookInput',
+      params: [
+        'handleNotebookInput',
+        'event.currentTarget.name',
+        'event.currentTarget.value',
+      ],
+    },
+  ],
   icon: 'notebook',
   id: viewId,
   kind: 'virtualDom',

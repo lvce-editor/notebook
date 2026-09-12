@@ -2,9 +2,10 @@
   "name": "notebook",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:24",
   "features": {
-    "ghcr.io/devcontainers/features/desktop-lite:1": {}
+    "ghcr.io/devcontainers/features/desktop-lite:1": {},
+    "ghcr.io/devcontainers/features/python:1": {}
   },
-  "postCreateCommand": "npm ci",
+  "postCreateCommand": "npm ci && python3 -m pip install jupyter_client ipykernel",
   "postStartCommand": "npm run dev",
   "customizations": {
     "vscode": {

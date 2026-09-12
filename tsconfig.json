@@ -2,8 +2,20 @@
   "files": [],
   "include": [],
   "references": [
-    { "path": "./packages/e2e" },
-    { "path": "./packages/extension" },
-    { "path": "./packages/build" }
+    {
+      "path": "./packages/e2e"
+    },
+    {
+      "path": "./packages/extension"
+    },
+    {
+      "path": "./packages/build"
+    },
+    {
+      "path": "./packages/node"
+    },
+    {
+      "path": "./packages/e2e/electron"
+    }
   ]
 }

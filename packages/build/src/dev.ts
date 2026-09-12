@@ -3,6 +3,8 @@ import { spawn } from 'node:child_process'
 import path from 'node:path'
 import { root } from './root.ts'
 
+await import('./build-extension.ts')
+
 const extension = path.join(root, 'packages', 'extension')
 const context = await esbuild.context({
   bundle: true,

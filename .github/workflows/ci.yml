@@ -41,6 +41,10 @@ jobs:
       - name: npm ci
         run: npm ci
         if: steps.npm-cache.outputs.cache-hit != 'true'
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - run: python -m pip install jupyter_client ipykernel
       - run: npm test
       - run: npm run type-check
       - run: npm run lint
