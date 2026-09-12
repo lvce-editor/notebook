@@ -1,13 +1,14 @@
+// cspell:ignore nbformat kernelspec ename evalue ipykernel
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 interface Session {
-  process: ChildProcessWithoutNullStreams
+  buffer: string
   pending?: {
     resolve(value: unknown): void
     reject(error: Error): void
     timer: ReturnType<typeof setTimeout>
   }
-  buffer: string
+  process: ChildProcessWithoutNullStreams
   stderr: string
 }
 const sessions = new Map<string, Session>()
@@ -27,12 +28,12 @@ const start = (id: string, kernel: string): Session => {
   const child = spawn(
     process.env.NOTEBOOK_PYTHON ||
       (process.platform === 'win32' ? 'python' : 'python3'),
-    ['-u', fileURLToPath(new URL('./kernel.py', import.meta.url)), kernel],
+    ['-u', fileURLToPath(new URL('kernel.py', import.meta.url)), kernel],
     { stdio: 'pipe' },
   )
-  const session: Session = { process: child, buffer: '', stderr: '' }
+  const session: Session = { buffer: '', process: child, stderr: '' }
   sessions.set(id, session)
-  const fail = (error: Error) => {
+  const fail = (error: Error): void => {
     if (sessions.get(id) !== session) return
     if (session.pending) {
       clearTimeout(session.pending.timer)
@@ -50,17 +51,19 @@ const start = (id: string, kernel: string): Session => {
     ),
   )
   child.stdin.on('error', fail)
-  child.stderr.on('data', (data: Buffer) => {
-    session.stderr = (session.stderr + data.toString()).slice(-4000)
+  child.stderr.setEncoding('utf8')
+  child.stderr.on('data', (data: string) => {
+    session.stderr = (session.stderr + data).slice(-4000)
   })
-  child.stdout.on('data', (data: Buffer) => {
-    session.buffer += data.toString()
+  child.stdout.setEncoding('utf8')
+  child.stdout.on('data', (data: string) => {
+    session.buffer += data
     if (session.buffer.length > 8 * 1024 * 1024) {
       fail(new Error('Notebook output exceeded 8 MB'))
       return
     }
     const newline = session.buffer.indexOf('\n')
-    if (newline < 0 || !session.pending) return
+    if (newline === -1 || !session.pending) return
     try {
       const result: unknown = JSON.parse(session.buffer.slice(0, newline))
       session.buffer = session.buffer.slice(newline + 1)
@@ -90,10 +93,10 @@ export const run = async (
     const timer = setTimeout(() => {
       stop(id)
     }, 90_000)
-    session.pending = { resolve, reject, timer }
+    session.pending = { reject, resolve, timer }
     session.process.stdin.write(`${JSON.stringify({ source })}\n`)
   })
 }
-process.on('exit', () => {
+export const stopAll = (): void => {
   for (const id of sessions.keys()) stop(id)
-})
+}

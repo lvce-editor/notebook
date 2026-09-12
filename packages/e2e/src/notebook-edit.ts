@@ -1,3 +1,4 @@
+// cspell:ignore nbformat kernelspec ename evalue ipykernel
 import type { Test } from '@lvce-editor/test-with-playwright'
 export const name = 'notebook-edit'
 export const test: Test = async ({ expect, FileSystem, Locator, Main }) => {
@@ -9,5 +10,6 @@ export const test: Test = async ({ expect, FileSystem, Locator, Main }) => {
   )
   await Main.openUri(uri)
   await Locator('.NotebookSource').type(' + 1')
-  await expect(Locator('.NotebookTitle')).toHaveText('Notebook •')
+  const element1 = Locator('.NotebookTitle')
+  await expect(element1).toHaveText('Notebook •')
 }

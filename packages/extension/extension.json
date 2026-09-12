@@ -9,7 +9,8 @@
   "contentSecurityPolicy": [
     "default-src 'none'",
     "style-src 'self'",
-    "script-src 'self'"
+    "script-src 'self'",
+    "connect-src 'self' ws://127.0.0.1:* ws://localhost:*"
   ],
   "categories": ["Other"],
   "activation": ["onView:notebook.views.notebook", "onCommand:notebook.show"],

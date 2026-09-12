@@ -4,6 +4,7 @@ import { createInstance } from '../CreateInstance/CreateInstance.ts'
 
 export const view: View<VirtualDomViewInstance> = {
   create: createInstance,
+  displayName: 'Notebook',
   eventListeners: [
     {
       name: 'handleNotebookAction',
@@ -18,7 +19,6 @@ export const view: View<VirtualDomViewInstance> = {
       ],
     },
   ],
-  displayName: 'Notebook',
   icon: 'notebook',
   id: viewId,
   kind: 'virtualDom',

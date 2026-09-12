@@ -10,17 +10,17 @@ test('renders valid DOM with controls, source and plain text outputs', () => {
   notebook.cells.push(
     {
       ...newCell('code'),
-      outputs: [{ output_type: 'stream', text: '<script>plain</script>' }],
       execution_count: 1,
+      outputs: [{ output_type: 'stream', text: '<script>plain</script>' }],
     },
     newCell('markdown'),
   )
   const dom = render({
-    notebook,
-    status: 'Ready',
-    error: '',
     busy: false,
     dirty: true,
+    error: '',
+    notebook,
+    status: 'Ready',
     uri: 'a.ipynb',
   })
   expect(() => validate(dom)).not.toThrow()
@@ -31,15 +31,15 @@ test('renders valid DOM with controls, source and plain text outputs', () => {
 })
 test('invalid notebook displays an error and disables modification', () => {
   const dom = render({
-    notebook: newNotebook(),
-    status: '',
-    error: 'Invalid JSON',
     busy: false,
     dirty: false,
+    error: 'Invalid JSON',
+    notebook: newNotebook(),
+    status: '',
     uri: '',
   })
   expect(() => validate(dom)).not.toThrow()
   expect(dom).toContainEqual(
-    expect.objectContaining({ name: 'save', disabled: true }),
+    expect.objectContaining({ disabled: true, name: 'save' }),
   )
 })

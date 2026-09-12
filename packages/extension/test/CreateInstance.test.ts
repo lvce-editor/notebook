@@ -1,39 +1,43 @@
 import { expect, test } from '@jest/globals'
+import type { NotebookRuntime } from '../src/parts/NotebookRuntime/NotebookRuntime.ts'
 import { createInstance } from '../src/parts/CreateInstance/CreateInstance.ts'
 import { newNotebook } from '../src/parts/NotebookDocument/NotebookDocument.ts'
-import type { NotebookRuntime } from '../src/parts/NotebookRuntime/NotebookRuntime.ts'
 const setup = async (
-  overrides: Partial<NotebookRuntime> = {},
+  overrides: Readonly<Partial<NotebookRuntime>> = {},
   content = JSON.stringify(newNotebook()),
-) => {
+): Promise<{
+  instance: Awaited<ReturnType<typeof createInstance>>
+  written: () => string
+  text: () => Promise<string>
+}> => {
   let written = ''
   const runtime: NotebookRuntime = {
+    getPlatform: async () => 'electron',
     readFile: async () => content,
+    run: async () => ({
+      execution_count: 1,
+      outputs: [{ output_type: 'stream', text: '42' }],
+    }),
+    stop: async () => {},
     writeFile: async (_uri, value) => {
       written = value
     },
-    getPlatform: async () => 'electron',
-    run: async () => ({
-      outputs: [{ output_type: 'stream', text: '42' }],
-      execution_count: 1,
-    }),
-    stop: async () => {},
     ...overrides,
   }
   const instance = await createInstance(
     {
-      uid: 1,
-      viewId: 'notebook',
-      uri: 'file:///a.ipynb',
       requestRerender: async () => {},
       showContextMenu: async () => {},
+      uid: 1,
+      uri: 'file:///a.ipynb',
+      viewId: 'notebook',
     },
     runtime,
   )
   return {
     instance,
-    written: () => written,
-    text: async () => JSON.stringify(await instance.render()),
+    text: async (): Promise<string> => JSON.stringify(instance.render()),
+    written: (): string => written,
   }
 }
 test('creates code and Markdown cells, edits and removes cells, and saves valid JSON', async () => {
@@ -51,7 +55,7 @@ test('creates code and Markdown cells, edits and removes cells, and saves valid 
   expect(instance.renderActionsDom()).toEqual([])
 })
 test('runs code and saves its outputs and execution count', async () => {
-  const { instance, written, text } = await setup()
+  const { instance, text, written } = await setup()
   await instance.handleNotebookAction('add-code')
   await instance.handleNotebookAction('run:0')
   expect(await text()).toContain('42')
@@ -73,7 +77,7 @@ test('web explains unsupported execution without starting a process', async () =
   expect(calls).toBe(0)
 })
 test('invalid files cannot be overwritten', async () => {
-  const { instance, written, text } = await setup({}, '{}')
+  const { instance, text, written } = await setup({}, '{}')
   await instance.handleNotebookAction('add-code')
   instance.handleNotebookInput('0', 'bad')
   await instance.handleNotebookAction('save')
@@ -129,11 +133,11 @@ test('unknown actions and nonexistent cells do nothing', async () => {
 test('restores unsaved content', async () => {
   const content = JSON.stringify(newNotebook())
   const instance = await createInstance({
-    uid: 2,
-    viewId: 'notebook',
-    state: { uri: 'file:///a.ipynb', content },
     requestRerender: async () => {},
     showContextMenu: async () => {},
+    state: { content, uri: 'file:///a.ipynb' },
+    uid: 2,
+    viewId: 'notebook',
   })
   expect(instance.saveState().content).toBe(content)
 })
@@ -144,25 +148,26 @@ test('empty view can create cells without a file', async () => {
   expect(instance.saveState().uri).toBe('')
 })
 test('busy execution prevents edits and disposal discards its result', async () => {
-  let finish!: (result: {
-    outputs: Record<string, unknown>[]
+  const deferred = Promise.withResolvers<{
     execution_count: number
-  }) => void
+    outputs: Record<string, unknown>[]
+  }>()
+  const started = Promise.withResolvers<void>()
   const { instance } = await setup({
-    run: () =>
-      new Promise((resolve) => {
-        finish = resolve
-      }),
+    run: () => {
+      started.resolve()
+      return deferred.promise
+    },
   })
   await instance.handleNotebookAction('add-code')
   const running = instance.handleNotebookAction('run:0')
-  while (!finish) await Promise.resolve()
+  await started.promise
   instance.handleNotebookInput('0', 'ignored')
   await instance.handleNotebookAction('add-markdown')
   await instance.dispose()
-  finish({
-    outputs: [{ output_type: 'stream', text: 'stale' }],
+  deferred.resolve({
     execution_count: 1,
+    outputs: [{ output_type: 'stream', text: 'stale' }],
   })
   await running
   const notebook = JSON.parse(instance.saveState().content!)

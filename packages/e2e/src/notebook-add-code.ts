@@ -1,6 +1,14 @@
+// cspell:ignore nbformat kernelspec ename evalue ipykernel
 import type { Test } from '@lvce-editor/test-with-playwright'
+import { action } from './_notebook.ts'
 export const name = 'notebook-add-code'
-export const test: Test = async ({ expect, FileSystem, Locator, Main }) => {
+export const test: Test = async ({
+  Command,
+  expect,
+  FileSystem,
+  Locator,
+  Main,
+}) => {
   const tmpDir = await FileSystem.getTmpDir()
   const uri = `${tmpDir}/notebook-add-code.ipynb`
   await FileSystem.writeFile(
@@ -8,7 +16,9 @@ export const test: Test = async ({ expect, FileSystem, Locator, Main }) => {
     '{"nbformat": 4, "nbformat_minor": 5, "metadata": {"custom": "preserve", "kernelspec": {"name": "python3", "display_name": "Python 3", "language": "python"}}, "cells": [{"cell_type": "code", "id": "initial", "metadata": {}, "source": ["print(42)"], "execution_count": null, "outputs": []}]}',
   )
   await Main.openUri(uri)
-  await Locator('[name="add-code"]').click()
-  await expect(Locator('.NotebookCell')).toHaveCount(2)
-  await expect(Locator('.NotebookSource').nth(1)).toHaveValue('')
+  await action(Command, 'add-code')
+  const element1 = Locator('.NotebookCell')
+  await expect(element1).toHaveCount(2)
+  const element2 = Locator('.NotebookSource').nth(1)
+  await expect(element2).toHaveValue('')
 }

@@ -1,4 +1,5 @@
 import {
+  AriaRoles,
   text,
   VirtualDomElements as E,
   type VirtualDomNode,
@@ -7,14 +8,43 @@ import {
   outputText,
   sourceText,
   type Notebook,
+  type DeepReadonly,
 } from '../NotebookDocument/NotebookDocument.ts'
+const handleNotebookAction = 'handleNotebookAction'
+const handleNotebookInput = 'handleNotebookInput'
 export interface NotebookState {
+  busy: boolean
+  dirty: boolean
+  error: string
   notebook: Notebook
   status: string
-  error: string
-  dirty: boolean
-  busy: boolean
   uri: string
+}
+const titleNode: VirtualDomNode = {
+  childCount: 1,
+  className: 'NotebookTitle',
+  type: E.H1,
+}
+const toolbarNode: VirtualDomNode = {
+  childCount: 4,
+  className: 'NotebookToolbar',
+  type: E.Div,
+}
+const statusNode: VirtualDomNode = {
+  childCount: 1,
+  className: 'NotebookStatus',
+  role: AriaRoles.Status,
+  type: E.Div,
+}
+const cellTypeNode: VirtualDomNode = {
+  childCount: 1,
+  className: 'NotebookCellType',
+  type: E.Div,
+}
+const outputNode: VirtualDomNode = {
+  childCount: 1,
+  className: 'NotebookOutput',
+  type: E.Pre,
 }
 const button = (
   label: string,
@@ -22,67 +52,65 @@ const button = (
   disabled: boolean,
 ): VirtualDomNode[] => [
   {
-    type: E.Button,
     childCount: 1,
     className: 'NotebookButton',
-    name,
-    onClick: 'handleNotebookAction',
     disabled,
+    name,
+    onClick: handleNotebookAction,
+    type: E.Button,
   },
   text(label),
 ]
-export const render = (state: NotebookState): readonly VirtualDomNode[] => {
-  const { notebook, status, error, dirty, busy, uri } = state
+export const render = (
+  state: DeepReadonly<NotebookState>,
+): readonly VirtualDomNode[] => {
+  const { busy, dirty, error, notebook, status, uri } = state
   const dom: VirtualDomNode[] = [
     {
-      type: E.Main,
       childCount: 3 + notebook.cells.length,
       className: 'Notebook',
+      type: E.Main,
     },
-    { type: E.H1, childCount: 1, className: 'NotebookTitle' },
+    titleNode,
     text(`Notebook${dirty ? ' •' : ''}`),
-    { type: E.Div, childCount: 4, className: 'NotebookToolbar' },
+    toolbarNode,
     ...button('Add code cell', 'add-code', busy || !!error),
     ...button('Add Markdown cell', 'add-markdown', busy || !!error),
     ...button('Save notebook', 'save', busy || !!error || !uri),
     ...button('Stop kernel', 'stop', false),
-    { type: E.Div, childCount: 1, className: 'NotebookStatus', role: 'status' },
+    statusNode,
     text(error || status),
   ]
-  notebook.cells.forEach((cell, index) => {
+  for (const [index, cell] of notebook.cells.entries()) {
     const outputs = cell.outputs || []
     dom.push(
       {
-        type: E.Div,
         childCount: 3 + outputs.length,
         className: 'NotebookCell',
+        type: E.Div,
       },
-      { type: E.Div, childCount: 1, className: 'NotebookCellType' },
+      cellTypeNode,
       text(`${cell.cell_type} ${cell.execution_count ?? ''}`),
       {
-        type: E.TextArea,
+        ariaLabel: `Cell ${index + 1} source`,
         childCount: 0,
         className: 'NotebookSource',
-        ariaLabel: `Cell ${index + 1} source`,
-        name: String(index),
-        value: sourceText(cell.source),
-        onInput: 'handleNotebookInput',
         disabled: busy,
+        name: String(index),
+        onInput: handleNotebookInput,
+        type: E.TextArea,
+        value: sourceText(cell.source),
       },
       {
-        type: E.Div,
         childCount: cell.cell_type === 'code' ? 2 : 1,
         className: 'NotebookCellActions',
+        type: E.Div,
       },
       ...button('Remove cell', `remove:${index}`, busy),
     )
     if (cell.cell_type === 'code')
       dom.push(...button('Run cell', `run:${index}`, busy))
-    for (const output of outputs)
-      dom.push(
-        { type: E.Pre, childCount: 1, className: 'NotebookOutput' },
-        text(outputText(output)),
-      )
-  })
+    for (const output of outputs) dom.push(outputNode, text(outputText(output)))
+  }
   return dom
 }

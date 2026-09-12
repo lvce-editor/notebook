@@ -1,4 +1,5 @@
 import { expect, test } from '@jest/globals'
+// cspell:ignore nbformat kernelspec ename evalue ipykernel
 import {
   kernelName,
   newCell,
@@ -10,15 +11,15 @@ import {
 test('preserves metadata, multiline source, attachments, outputs and unknown fields', () => {
   const notebook = {
     ...newNotebook(),
-    extra: true,
     cells: [
       {
         ...newCell('markdown'),
-        source: ['hello\n', 'world'],
         attachments: { image: {} },
         metadata: { custom: true },
+        source: ['hello\n', 'world'],
       },
     ],
+    extra: true,
   }
   expect(parseNotebook(JSON.stringify(notebook))).toEqual(notebook)
   expect(sourceText(notebook.cells[0].source)).toBe('hello\nworld')
@@ -35,7 +36,7 @@ test.each([
   { ...newCell('code'), outputs: null },
   { ...newCell('code'), execution_count: 'x' },
   { ...newCell('markdown'), metadata: [] },
-])('rejects invalid cells', (cell) => {
+])('rejects invalid cells', (cell: unknown) => {
   expect(() =>
     parseNotebook(JSON.stringify({ ...newNotebook(), cells: [cell] })),
   ).toThrow()
@@ -50,10 +51,10 @@ test('accepts code output and raw cells', () => {
 test('normalizes output text without rendering HTML', () => {
   expect(outputText({ output_type: 'stream', text: ['a', 'b'] })).toBe('ab')
   expect(
-    outputText({ output_type: 'error', ename: 'Error', evalue: 'bad' }),
+    outputText({ ename: 'Error', evalue: 'bad', output_type: 'error' }),
   ).toBe('Error: bad')
   expect(
-    outputText({ data: { 'text/plain': '42', 'text/html': '<script>' } }),
+    outputText({ data: { 'text/html': '<script>', 'text/plain': '42' } }),
   ).toBe('42')
   expect(outputText({ data: { 'text/html': '<script>' } })).toBe('')
   expect(outputText({})).toBe('')

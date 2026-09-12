@@ -7,5 +7,6 @@
   },
   "dependencies": {
     "@lvce-editor/rpc": "^6.19.3"
-  }
+  },
+  "license": "MIT"
 }

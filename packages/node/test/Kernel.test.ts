@@ -1,7 +1,11 @@
-import { test } from 'node:test'
+// cspell:ignore nbformat kernelspec ename evalue ipykernel
 import assert from 'node:assert/strict'
+import { test } from 'node:test'
 import { run, stop } from '../src/Kernel.ts'
-test('Jupyter executes cells with persistent state, streams, expression output and errors', async () => {
+const stopped = /Kernel stopped/
+const busy = /already running/
+const exited = /Kernel exited/
+await test('Jupyter executes cells with persistent state, streams, expression output and errors', async () => {
   try {
     const first = (await run(
       'test',
@@ -21,26 +25,23 @@ test('Jupyter executes cells with persistent state, streams, expression output a
     stop('test')
   }
 })
-test('stop cancels execution and repeated stop is harmless', async () => {
+await test('stop cancels execution and repeated stop is harmless', async () => {
   const execution = run('stop', 'python3', 'import time\ntime.sleep(60)')
-  const rejection = assert.rejects(execution, /Kernel stopped/)
+  const rejection = assert.rejects(execution, stopped)
   stop('stop')
   stop('stop')
   await rejection
 })
-test('rejects concurrent execution in one notebook', async () => {
+await test('rejects concurrent execution in one notebook', async () => {
   const first = run('busy', 'python3', '1')
-  const rejection = assert.rejects(first, /Kernel stopped/)
-  await assert.rejects(run('busy', 'python3', '2'), /already running/)
+  const rejection = assert.rejects(first, stopped)
+  await assert.rejects(run('busy', 'python3', '2'), busy)
   stop('busy')
   await rejection
 })
-test('reports missing kernels', async () => {
+await test('reports missing kernels', async () => {
   try {
-    await assert.rejects(
-      run('missing', 'no-such-notebook-kernel', '1'),
-      /Kernel exited/,
-    )
+    await assert.rejects(run('missing', 'no-such-notebook-kernel', '1'), exited)
   } finally {
     stop('missing')
   }

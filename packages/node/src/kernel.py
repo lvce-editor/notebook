@@ -22,6 +22,7 @@ try:
         message_id = client.execute(request['source'], allow_stdin=False, stop_on_error=True)
         outputs = []
         count = None
+        output_bytes = 0
         clear_pending = False
         while True:
             message = client.get_iopub_msg(timeout=60)
@@ -42,6 +43,9 @@ try:
                 if clear_pending:
                     outputs = []
                     clear_pending = False
+                output_bytes += len(json.dumps(content))
+                if output_bytes > 8 * 1024 * 1024:
+                    raise RuntimeError('Notebook output exceeded 8 MB')
                 output = dict(content, output_type=kind)
                 output.pop('transient', None)
                 outputs.append(output)
