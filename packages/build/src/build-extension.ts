@@ -20,3 +20,16 @@ await esbuild.build({
   sourcemap: true,
   target: 'esnext',
 })
+
+await esbuild.build({
+  bundle: true,
+  entryPoints: [path.join(root, 'packages/node/src/notebookProcess.ts')],
+  outfile: path.join(outdir, 'notebookProcess.js'),
+  platform: 'node',
+  format: 'esm',
+  target: 'esnext',
+})
+fs.copyFileSync(
+  path.join(root, 'packages/node/src/kernel.py'),
+  path.join(outdir, 'kernel.py'),
+)

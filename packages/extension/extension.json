@@ -27,7 +27,32 @@
       "title": "Notebook",
       "icon": "media/notebook.svg",
       "kind": "virtualDom",
-      "preferredLocation": "preview"
+      "preferredLocation": "preview",
+      "type": "preview",
+      "selector": [".ipynb"],
+      "showSideBarHeader": false,
+      "eventListeners": [
+        {
+          "name": "handleNotebookAction",
+          "params": ["handleNotebookAction", "event.currentTarget.name"]
+        },
+        {
+          "name": "handleNotebookInput",
+          "params": [
+            "handleNotebookInput",
+            "event.currentTarget.name",
+            "event.currentTarget.value"
+          ]
+        }
+      ]
+    }
+  ],
+  "rpc": [
+    {
+      "id": "builtin.notebook.kernel",
+      "type": "node-process",
+      "name": "Notebook Kernel",
+      "url": "dist/notebookProcess.js"
     }
   ]
 }

@@ -18,6 +18,10 @@
     },
     "packages/server": {
       "project": ["src/**/*.js"]
+    },
+    "packages/node": {
+      "entry": ["src/notebookProcess.ts", "test/**/*.test.ts"],
+      "project": ["src/**/*.ts", "test/**/*.ts"]
     }
   }
 }

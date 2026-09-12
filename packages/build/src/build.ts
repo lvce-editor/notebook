@@ -1,3 +1,4 @@
+import * as esbuildNode from 'esbuild'
 import { packageExtension } from '@lvce-editor/package-extension'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import fs from 'node:fs'
@@ -44,6 +45,19 @@ await bundle.write({
   format: 'esm',
 })
 await bundle.close()
+
+await esbuildNode.build({
+  bundle: true,
+  entryPoints: [join(root, 'packages/node/src/notebookProcess.ts')],
+  outfile: join(output, 'dist/notebookProcess.js'),
+  platform: 'node',
+  format: 'esm',
+  target: 'esnext',
+})
+fs.copyFileSync(
+  join(root, 'packages/node/src/kernel.py'),
+  join(output, 'dist/kernel.py'),
+)
 
 await packageExtension({
   highestCompression: true,

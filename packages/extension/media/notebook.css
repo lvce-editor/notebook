@@ -1,12 +1,37 @@
 .Notebook {
-  align-items: center;
-  display: flex;
+  padding: 16px;
+  overflow: auto;
   height: 100%;
-  justify-content: center;
+  box-sizing: border-box;
+  color: var(--MainForeground);
 }
-
-.NotebookTitle {
-  font-size: 24px;
-  font-weight: 500;
-  margin: 0;
+.NotebookToolbar,
+.NotebookCellActions {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+}
+.NotebookCell {
+  padding: 12px;
+  margin: 12px 0;
+  border: 1px solid currentColor;
+}
+.NotebookSource {
+  display: block;
+  width: 100%;
+  min-height: 100px;
+  box-sizing: border-box;
+  font-family: monospace;
+  background: transparent;
+  color: inherit;
+}
+.NotebookOutput {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.NotebookButton {
+  padding: 6px 10px;
+}
+.NotebookStatus {
+  min-height: 24px;
 }

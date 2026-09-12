@@ -1,0 +1,11 @@
+{
+  "name": "builtin.notebook-node",
+  "version": "0.0.0-dev",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.ts"
+  },
+  "dependencies": {
+    "@lvce-editor/rpc": "^6.19.3"
+  }
+}
