@@ -46,6 +46,8 @@ export const test: Test = async ({
     )
     return
   }
+  const executionStatus = Locator('.NotebookStatus')
+  await expect(executionStatus).toHaveText('Cell finished')
   const element2 = Locator('.NotebookOutput')
   await expect(element2).toHaveText('40\n')
   await action(Command, 'run:1')

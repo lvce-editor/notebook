@@ -45,9 +45,6 @@ export const createInstance = async (
   } catch (error) {
     state.error = String(error)
   }
-  const rerender = async (): Promise<void> => {
-    if (!disposed) await context?.requestRerender()
-  }
   const isCurrent = (current: number): boolean =>
     !disposed && current === generation
   const stopKernel = async (): Promise<void> => {
@@ -61,7 +58,6 @@ export const createInstance = async (
     } finally {
       state.busy = false
     }
-    await rerender()
   }
   const save = async (current: number): Promise<void> => {
     const { notebook } = state
@@ -84,8 +80,6 @@ export const createInstance = async (
       return
     }
     state.status = 'Running cell…'
-    await rerender()
-    if (!isCurrent(current)) return
     const result = await runtime.run(
       id,
       kernelName(notebook),
@@ -134,7 +128,6 @@ export const createInstance = async (
         if (isCurrent(current)) state.status = String(error)
       } finally {
         if (current === generation) state.busy = false
-        await rerender()
       }
     },
     handleNotebookInput(name: string, value: string): void {

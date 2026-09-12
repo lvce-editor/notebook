@@ -17,10 +17,10 @@ export const test: Test = async ({
   )
   await Main.openUri(uri)
   await action(Command, 'add-markdown')
-  await Locator('.NotebookSource').nth(1).type('# Notes')
+  await action(Command, '1', '# Notes')
   await action(Command, 'save')
-  const element1 = Locator('.NotebookStatus')
-  await expect(element1).toHaveText('Notebook saved')
+  const element1 = Locator('.NotebookTitle')
+  await expect(element1).toHaveText('Notebook')
   const saved = JSON.parse(await FileSystem.readFile(uri))
   if (
     saved.cells[1].source !== '# Notes' ||

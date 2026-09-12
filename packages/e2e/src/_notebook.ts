@@ -2,6 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 export const action = async (
   Command: Readonly<Parameters<Test>[0]['Command']>,
   name: string,
+  value?: string,
 ): Promise<void> => {
   const states = await Command.execute('Viewlet.getAllStates')
   const view = Object.values(states).find(
@@ -12,7 +13,8 @@ export const action = async (
     'Viewlet.executeViewletCommand',
     view.uid,
     'handleViewCommand',
-    'handleNotebookAction',
+    value === undefined ? 'handleNotebookAction' : 'handleNotebookInput',
     name,
+    ...(value === undefined ? [] : [value]),
   )
 }
