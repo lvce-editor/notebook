@@ -32,7 +32,8 @@ export const test = async ({
   await page
     .getByRole('button', { exact: true, name: 'Save notebook' })
     .press('Enter')
-  await expect(page.locator('.NotebookTitle')).toHaveText('Notebook')
+  const title = page.locator('.NotebookTitle')
+  await expect(title).toHaveText('Notebook')
   const saved = JSON.parse(
     await readFile(process.env.NOTEBOOK_TEST_FILE!, 'utf8'),
   )
@@ -42,5 +43,5 @@ export const test = async ({
   await page
     .getByRole('button', { exact: true, name: 'Stop kernel' })
     .press('Enter')
-  await expect(page.locator('.NotebookStatus')).toHaveText('Kernel stopped')
+  await expect(status).toHaveText('Kernel stopped')
 }
