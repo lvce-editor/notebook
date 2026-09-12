@@ -91,4 +91,6 @@ export const kernelName = (notebook: DeepReadonly<Notebook>): string => {
   return 'python3'
 }
 
-export type DeepReadonly<T> = { readonly [P in keyof T]: DeepReadonly<T[P]> }
+export type DeepReadonly<T> = T extends object
+  ? { readonly [P in keyof T]: DeepReadonly<T[P]> }
+  : T
