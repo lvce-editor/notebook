@@ -7,6 +7,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@lvce-editor/server": "0.107.2"
+    "@lvce-editor/server": "0.107.4"
   }
 }

@@ -9,7 +9,7 @@ editor; outputs are displayed as plain text.
 
 ## Execute cells
 
-Requires LVCE Editor 0.107.2 or newer.
+Requires LVCE Editor 0.107.4 or newer.
 
 Native LVCE uses a separate Node process and a Jupyter kernel. Install Python,
 then `python3 -m pip install jupyter_client ipykernel`. On Windows use `python`.

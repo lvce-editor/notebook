@@ -2,6 +2,7 @@ import * as config from '@lvce-editor/eslint-config'
 import { defineConfig } from 'eslint/config'
 
 export default defineConfig([
+  { ignores: ['**/.test-with-playwright/**'] },
   ...config.default,
   ...config.recommendedRegex,
   ...config.recommendedTsconfig,
