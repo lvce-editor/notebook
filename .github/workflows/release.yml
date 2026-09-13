@@ -21,7 +21,10 @@ jobs:
       - run: npm test
       - run: npm run type-check
       - run: node scripts/build.ts
+      - name: Name builtin extension archive
+        run: mv extension.tar.br "notebook-${GITHUB_REF_NAME}.tar.br"
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          files: extension.tar.br
+          files: notebook-${{ github.ref_name }}.tar.br
+          fail_on_unmatched_files: true
