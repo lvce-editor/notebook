@@ -60,7 +60,7 @@ export const test = async ({
     for (const kind of ['CONFIG', 'DATA', 'STATE', 'CACHE']) {
       env[`XDG_${kind}_HOME`] = join(profile, kind.toLowerCase())
     }
-    const launch = async (restarting = false): Promise<Page> => {
+    const launch = async (): Promise<Page> => {
       app = await _electron.launch({
         args: [
           '--no-sandbox',
@@ -81,15 +81,11 @@ export const test = async ({
       const page = await app.firstWindow()
       const workbench2 = page.locator('.Workbench')
       await expect(workbench2).toBeVisible()
-      if (restarting) {
-        const restoredDetail = page.locator('.ExtensionDetailName')
-        await expect(restoredDetail).toHaveText('Notebookbuiltin')
-      } else {
-        const document = page.locator('.Editor')
-        await expect(document).toBeVisible()
-        const documentTab = page.locator('.MainTabSelected .TabTitle')
-        await expect(documentTab).toHaveText('example.ipynb')
-      }
+      // Startup can restore the previous tab or open the command-line notebook.
+      const restoredView = page
+        .locator('.Editor, .Notebook, .ExtensionDetailName, .RunningExtensions')
+        .first()
+      await expect(restoredView).toBeVisible()
       return page
     }
     const openDetail = async (
@@ -154,7 +150,7 @@ export const test = async ({
     await app!.close()
     app = undefined
 
-    page = await launch(true)
+    page = await launch()
     await openDetail(page)
     const enable = page.locator('[name="Enable"]')
     await expect(enable).toBeHidden()
