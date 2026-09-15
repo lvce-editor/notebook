@@ -21,16 +21,10 @@ export const test = async ({
   try {
     const config = join(profile, 'config/lvce')
     await mkdir(config, { recursive: true })
-    // Persisted LVCE key codes for Ctrl+Alt+1 and Ctrl+Alt+2.
+    // Persisted LVCE key codes for Ctrl+Alt+2 and Ctrl+Alt+3.
     await writeFile(
       join(config, 'keybindings.json'),
       JSON.stringify([
-        {
-          args: ['extension-detail:///builtin.notebook'],
-          command: 'Main.openUri',
-          key: 2580,
-          source: 'User',
-        },
         { command: 'Main.closeAllEditors', key: 2581, source: 'User' },
         {
           args: ['running-extensions:///1'],
@@ -66,7 +60,7 @@ export const test = async ({
     for (const kind of ['CONFIG', 'DATA', 'STATE', 'CACHE']) {
       env[`XDG_${kind}_HOME`] = join(profile, kind.toLowerCase())
     }
-    const launch = async (): Promise<Page> => {
+    const launch = async (restarting = false): Promise<Page> => {
       app = await _electron.launch({
         args: [
           '--no-sandbox',
@@ -87,11 +81,15 @@ export const test = async ({
       const page = await app.firstWindow()
       const workbench2 = page.locator('.Workbench')
       await expect(workbench2).toBeVisible()
-      // Wait for the requested document, not just the startup workbench shell.
-      const document = page.locator('.Editor, .Notebook').first()
-      await expect(document).toBeVisible()
-      const documentTab = page.locator('.MainTabSelected .TabTitle')
-      await expect(documentTab).toHaveText('example.ipynb')
+      if (restarting) {
+        const restoredDetail = page.locator('.ExtensionDetailName')
+        await expect(restoredDetail).toHaveText('Notebookbuiltin')
+      } else {
+        const document = page.locator('.Editor')
+        await expect(document).toBeVisible()
+        const documentTab = page.locator('.MainTabSelected .TabTitle')
+        await expect(documentTab).toHaveText('example.ipynb')
+      }
       return page
     }
     const openDetail = async (
@@ -156,7 +154,7 @@ export const test = async ({
     await app!.close()
     app = undefined
 
-    page = await launch()
+    page = await launch(true)
     await openDetail(page)
     const enable = page.locator('[name="Enable"]')
     await expect(enable).toBeHidden()
