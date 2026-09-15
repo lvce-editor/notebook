@@ -90,14 +90,21 @@ export const test = async ({
       return page
     }
     const openDetail = async (
-      page: Readonly<Pick<Page, 'bringToFront' | 'locator'>> & {
-        readonly keyboard: Readonly<Pick<Page['keyboard'], 'press'>>
-      },
+      page: Readonly<Pick<Page, 'bringToFront' | 'locator'>>,
     ): Promise<void> => {
       await page.bringToFront()
-      // eslint-disable-next-line e2e/no-direct-click -- focus the workbench before the configured keyboard shortcut
-      await page.locator('.Workbench').click()
-      await page.keyboard.press('Control+Alt+1')
+      const extensions = page.locator('.Extensions')
+      if (!(await extensions.isVisible())) {
+        // eslint-disable-next-line e2e/no-direct-click -- open the installed extensions through the activity bar
+        await page.locator('.ActivityBarItem[title^="Extensions"]').click()
+      }
+      const search = extensions.locator('input[type="search"]')
+      await search.fill('@id:builtin.notebook')
+      const notebookItem = extensions.locator('.ExtensionListItem', {
+        hasText: 'Notebook',
+      })
+      // eslint-disable-next-line e2e/no-direct-click -- open the bundled extension details through its search result
+      await notebookItem.click()
       const extensionName = page.locator('.ExtensionDetailName')
       await expect(extensionName).toHaveText('Notebookbuiltin')
     }
@@ -128,7 +135,8 @@ export const test = async ({
     })
     await expect(runningNotebook).toBeHidden()
     await openDetail(page)
-    await page.locator('[name="Enable"]').press('Enter')
+    // eslint-disable-next-line e2e/no-direct-click -- enable the bundled extension through its detail action
+    await page.locator('[name="Enable"]').click()
     await expect(disable2).toBeVisible()
     const enablementPath = join(
       profile,
@@ -150,6 +158,8 @@ export const test = async ({
     const reopenedDisable = page.locator('[name="Disable"]')
     await expect(reopenedDisable).toBeVisible()
     await page.keyboard.press('Control+Alt+2')
+    // eslint-disable-next-line e2e/no-direct-click -- return to the notebook workspace
+    await page.locator('.ActivityBarItem[title^="Explorer"]').click()
     await page
       .getByRole('treeitem', { exact: true, name: 'example.ipynb' })
       .dblclick()
