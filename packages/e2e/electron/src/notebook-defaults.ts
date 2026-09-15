@@ -60,7 +60,10 @@ export const test = async ({
     for (const kind of ['CONFIG', 'DATA', 'STATE', 'CACHE']) {
       env[`XDG_${kind}_HOME`] = join(profile, kind.toLowerCase())
     }
+    let launchCount = 0
     const launch = async (): Promise<Page> => {
+      launchCount++
+      console.log(`Notebook launch ${launchCount}`)
       app = await _electron.launch({
         args: [
           '--no-sandbox',
@@ -79,13 +82,27 @@ export const test = async ({
         ['config', 'data', 'state', 'cache'].map((kind) => join(profile, kind)),
       )
       const page = await app.firstWindow()
+      page.on('console', (message) =>
+        console.log('NOTEBOOK CONSOLE', message.text()),
+      )
+      page.on('pageerror', (error) =>
+        console.log('NOTEBOOK PAGE ERROR', error.message),
+      )
       const workbench2 = page.locator('.Workbench')
       await expect(workbench2).toBeVisible()
       // Startup can restore the previous tab or open the command-line notebook.
       const restoredView = page
         .locator('.Editor, .Notebook, .ExtensionDetailName, .RunningExtensions')
         .first()
-      await expect(restoredView).toBeVisible()
+      await expect(restoredView)
+        .toBeVisible()
+        .catch(async (error: unknown) => {
+          console.log(
+            'NOTEBOOK STARTUP DOM',
+            await page.locator('body').innerText(),
+          )
+          throw error
+        })
       return page
     }
     const openDetail = async (
