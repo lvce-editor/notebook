@@ -87,6 +87,11 @@ export const test = async ({
       const page = await app.firstWindow()
       const workbench2 = page.locator('.Workbench')
       await expect(workbench2).toBeVisible()
+      // Wait for the requested document, not just the startup workbench shell.
+      const document = page.locator('.Editor, .Notebook').first()
+      await expect(document).toBeVisible()
+      const documentTab = page.locator('.MainTabSelected .TabTitle')
+      await expect(documentTab).toHaveText('example.ipynb')
       return page
     }
     const openDetail = async (
