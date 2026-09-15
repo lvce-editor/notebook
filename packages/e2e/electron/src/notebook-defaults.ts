@@ -1,8 +1,4 @@
-import type {
-  ConsoleMessage,
-  ElectronApplication,
-  Page,
-} from '@playwright/test'
+import type { ElectronApplication, Page } from '@playwright/test'
 // cspell:ignore nbformat Notebookbuiltin
 import { _electron, expect } from '@playwright/test'
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
