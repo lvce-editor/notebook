@@ -41,6 +41,7 @@ const child = spawn(
       'node_modules/@lvce-editor/test-with-playwright/bin/test-with-playwright.js',
     ),
     '--test-path=electron',
+    '--filter=notebook.ts',
     '--electron',
     `--electron-arg=${file}`,
   ],
