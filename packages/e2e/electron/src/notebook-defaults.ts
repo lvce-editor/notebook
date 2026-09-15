@@ -96,7 +96,9 @@ export const test = async ({
       await expect(workbench2).toBeVisible()
       // Startup can restore the previous tab or open the command-line notebook.
       const restoredView = page
-        .locator('.Editor, .Notebook, .ExtensionDetailName, .RunningExtensions')
+        .locator(
+          '.Editor, .Notebook, .ExtensionDetailName, .RunningExtensions, .Extensions',
+        )
         .first()
       try {
         await expect(restoredView).toBeVisible()
