@@ -20,5 +20,5 @@
     "strict": true,
     "noImplicitAny": true
   },
-  "include": ["src", "bundled/src"]
+  "include": ["src"]
 }

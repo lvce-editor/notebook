@@ -19,7 +19,7 @@ export const test = async ({
   const profile = await mkdtemp(join(tmpdir(), 'notebook-defaults-'))
   let app: ElectronApplication | undefined
   try {
-    const config = join(profile, 'config/lvce-oss')
+    const config = join(profile, 'config/lvce')
     await mkdir(config, { recursive: true })
     // Persisted LVCE key codes for Ctrl+Alt+1 and Ctrl+Alt+2.
     await writeFile(
@@ -32,6 +32,12 @@ export const test = async ({
           source: 'User',
         },
         { command: 'Main.closeAllEditors', key: 2581, source: 'User' },
+        {
+          args: ['running-extensions:///1'],
+          command: 'Main.openUri',
+          key: 2582,
+          source: 'User',
+        },
       ]),
     )
     const notebook = join(profile, 'example.ipynb')
@@ -103,11 +109,30 @@ export const test = async ({
     await expect(install).toBeHidden()
     const disable2 = page.locator('[name="Disable"]')
     await expect(disable2).toBeHidden()
+    const initialEnable = page.locator('[name="Enable"]')
+    await expect(initialEnable).toBeVisible()
+    await page.keyboard.press('Control+Shift+P')
+    const quickPickInput = page.locator('.QuickPick input')
+    await quickPickInput.fill('>Notebook: Show')
+    const notebookCommand = page.getByRole('option', {
+      exact: true,
+      name: 'Notebook: Show',
+    })
+    await expect(notebookCommand).toBeHidden()
+    await page.keyboard.press('Escape')
+    await page.keyboard.press('Control+Alt+3')
+    const runningExtensions = page.locator('.RunningExtensions')
+    await expect(runningExtensions).toBeVisible()
+    const runningNotebook = page.locator('.RunningExtensionId', {
+      hasText: 'builtin.notebook',
+    })
+    await expect(runningNotebook).toBeHidden()
+    await openDetail(page)
     await page.locator('[name="Enable"]').press('Enter')
     await expect(disable2).toBeVisible()
     const enablementPath = join(
       profile,
-      'data/lvce-oss/extensions/disabled-extensions.json',
+      'data/lvce/extensions/disabled-extensions.json',
     )
     await expect
       .poll(

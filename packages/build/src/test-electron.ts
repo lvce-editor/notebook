@@ -42,7 +42,7 @@ const child = spawn(
     ),
     '--test-path=electron',
     '--filter=notebook.ts',
-    '--electron',
+    '--runtime=electron',
     `--electron-arg=${file}`,
   ],
   {
