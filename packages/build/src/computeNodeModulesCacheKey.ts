@@ -1,9 +1,7 @@
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-
-const root = join(dirname(fileURLToPath(import.meta.url)), '..')
+import { join } from 'node:path'
+import { root } from './root.ts'
 
 const locations = [
   'package.json',
@@ -12,7 +10,7 @@ const locations = [
   '.github/workflows/ci.yml',
   '.github/workflows/release.yml',
   '.nvmrc',
-  'scripts/computeNodeModulesCacheKey.ts',
+  'packages/build/src/computeNodeModulesCacheKey.ts',
 ]
 
 const hash = createHash('sha1')

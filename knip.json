@@ -2,9 +2,6 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "exclude": ["exports", "types"],
   "workspaces": {
-    ".": {
-      "project": ["scripts/**/*.ts"]
-    },
     "packages/build": {
       "project": ["src/**/*.ts"]
     },

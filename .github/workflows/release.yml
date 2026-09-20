@@ -24,7 +24,7 @@ jobs:
       - run: python -m pip install jupyter_client ipykernel
       - run: npm test
       - run: npm run type-check
-      - run: node scripts/build.ts
+      - run: node packages/build/src/build.ts
       - name: Name builtin extension archive
         run: mv extension.tar.br "notebook-${GITHUB_REF_NAME}.tar.br"
       - name: Publish release
