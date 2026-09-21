@@ -5,6 +5,8 @@
   "scripts": {
     "build:extension": "node ../build/src/build-extension.ts",
     "e2e": "npm run build:extension && test-with-playwright --only-extension=../extension --test-path=.",
+    "e2e:firefox": "npm run build:extension && test-with-playwright --only-extension=../extension --test-path=. --browser=firefox",
+    "e2e:firefox:headless": "npm run build:extension && test-with-playwright --only-extension=../extension --test-path=. --browser=firefox --headless",
     "e2e:electron": "node ../build/src/test-electron.ts",
     "e2e:headless": "npm run build:extension && test-with-playwright --only-extension=../extension --test-path=. --headless",
     "e2e:bundled:electron": "test-with-playwright --test-path=electron --runtime=electron --electron-version=v0.115.10 --filter=notebook-defaults.ts --timeout=60000"

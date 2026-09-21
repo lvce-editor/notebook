@@ -13,6 +13,8 @@
     "build:watch": "npm exec --workspace=packages/build -- esbuild --format=esm --bundle --external:electron --external:node:* --watch packages/extension/src/notebookMain.ts --outfile=packages/extension/dist/notebookMain.js",
     "dev": "node packages/build/src/dev.ts",
     "e2e": "npm run e2e --workspace=packages/e2e",
+    "e2e:firefox": "npm run e2e:firefox --workspace=packages/e2e",
+    "e2e:firefox:headless": "npm run e2e:firefox:headless --workspace=packages/e2e",
     "e2e:headless": "npm run e2e:headless --workspace=packages/e2e",
     "format": "prettier --write .",
     "install:extension": "node packages/build/src/install-extension.ts",
