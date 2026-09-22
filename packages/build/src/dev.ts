@@ -1,5 +1,6 @@
 import * as esbuild from 'esbuild'
 import { spawn } from 'node:child_process'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 import { root } from './root.ts'
 
@@ -20,17 +21,13 @@ const context = await esbuild.context({
 await context.rebuild()
 await context.watch()
 
+const serverPackagePath = path.join(root, 'packages', 'server', 'package.json')
+const serverRequire = createRequire(serverPackagePath)
+const serverPath = serverRequire.resolve('@lvce-editor/server/bin/server.js')
 const server = spawn(
   process.execPath,
   [
-    path.join(
-      root,
-      'node_modules',
-      '@lvce-editor',
-      'server',
-      'bin',
-      'server.js',
-    ),
+    serverPath,
     '--only-extension=packages/extension',
     '--test-path=packages/e2e',
   ],
